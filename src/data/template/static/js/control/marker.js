@@ -74,6 +74,15 @@ MarkerControl.prototype.create = function(wrapper) {
 
 	wrapper.appendChild(Util.createPanelHeader("Markers"));
 	wrapper.appendChild(listGroup);
+	
+	if (window.innerWidth <= 600) {
+		setTimeout(function () {
+			$(".panel-heading").on("click", function () {
+				$(".list-group").toggle();
+			});
+		}, 500);
+		$(".list-group").hide();
+	}
 };
 
 // hmm this is a not-so-nice hack
