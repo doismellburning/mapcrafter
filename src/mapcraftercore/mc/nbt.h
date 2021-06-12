@@ -320,7 +320,7 @@ public:
 		static_assert(std::is_same<T, TagByteArray>::value
 				|| std::is_same<T, TagIntArray>::value
 				|| std::is_same<T, TagLongArray>::value,
-			"Only TagByteArray, TagIngArray and TagLongArray are allowed as template argument!");
+			"Only TagByteArray, TagIntArray and TagLongArray are allowed as template argument!");
 		if (!hasTag<T>(name))
 			return false;
 		T& tag = payload.at(name)->cast<T>();
