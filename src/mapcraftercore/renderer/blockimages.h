@@ -163,7 +163,7 @@ public:
 	bool loadBlockImages(fs::path block_dir, std::string view, int rotation, int texture_size);
 	virtual RGBAImage exportBlocks() const;
 
-	const BlockImage& getBlockImage(uint16_t id) const;
+	const BlockImage& getBlockImage(uint16_t id, mc::BlockPos position) const;
 	void prepareBiomeBlockImage(RGBAImage& image, const BlockImage& block, uint32_t color);
 
 	virtual int getTextureSize() const;

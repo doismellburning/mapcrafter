@@ -136,6 +136,10 @@ BlockPos::BlockPos(int x, int z, int y)
 	: x(x), z(z), y(y) {
 }
 
+BlockPos::BlockPos(ChunkPos pos)
+	: x(pos.x*16), z(pos.z*16), y(0) {
+}
+
 int BlockPos::getRow() const {
 	return z - x + (CHUNK_TOP*16 - y) * 4;
 }

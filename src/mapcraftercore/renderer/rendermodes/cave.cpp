@@ -57,14 +57,14 @@ bool CaveRenderMode::isHidden(const mc::BlockPos& pos, const BlockImage& block_i
 	// if no  => lake in a cave, show it
 	mc::Block top = getBlock(pos + mc::DIR_TOP,
 			mc::GET_ID | mc::GET_SKY_LIGHT);
-	const BlockImage* top_image = &block_images->getBlockImage(top.id);
+	const BlockImage* top_image = &block_images->getBlockImage(top.id, pos);
 	if (block_image.is_full_water || block_image.is_waterlogged || block_image.is_ice
 			|| top_image->is_full_water || top_image->is_waterlogged || top_image->is_ice) {
 		mc::BlockPos p = pos + mc::DIR_TOP;
 
 		while (top_image->is_full_water || top_image->is_waterlogged || top_image->is_ice) {
 			top = getBlock(p, mc::GET_ID | mc::GET_SKY_LIGHT);
-			top_image = &block_images->getBlockImage(top.id);
+			top_image = &block_images->getBlockImage(top.id, pos);
 			p.y++;
 		}
 
@@ -77,7 +77,7 @@ bool CaveRenderMode::isHidden(const mc::BlockPos& pos, const BlockImage& block_i
 	// and also only the ones that have a transparent block (or air)
 	// on at least one of specific sides
 	for (auto it = hidden_dirs.begin(); it != hidden_dirs.end(); ++it) {
-		if (block_images->getBlockImage(getBlock(pos + *it).id).is_transparent) {
+		if (block_images->getBlockImage(getBlock(pos + *it).id, pos).is_transparent) {
 			return false;
 		}
 	}
