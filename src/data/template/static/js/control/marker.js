@@ -1,11 +1,11 @@
 MarkerControl.prototype = new BaseControl("MarkerControl");
 
-function MarkerControl(markers) {
+function MarkerControl (markers) {
 	this.handler = new MarkerHandler(this, markers);
 	this.buttons = [];
 }
 
-MarkerControl.prototype.create = function(wrapper) {
+MarkerControl.prototype.create = function (wrapper) {
 	var groups = this.handler.getMarkerGroups();
 
 	var checkedClass = "list-group-item-info";
@@ -21,12 +21,12 @@ MarkerControl.prototype.create = function(wrapper) {
 		button.setAttribute("class", "list-group-item  " + checkedClass);
 		button.setAttribute("data-group", group);
 		button.innerHTML = "<span class='badge'>17</span> <span class='right-padding'>" + groupLabel + "</span>";
-		button.addEventListener("click", function(handler) {
-			return function() {
+		button.addEventListener("click", function (handler) {
+			return function () {
 				var checked = Util.hasClass(this, checkedClass);
 				var group = this.getAttribute("data-group");
 				handler.show(group, !checked);
-				
+
 				if (checked) {
 					Util.removeClass(this, checkedClass);
 				} else {
@@ -43,8 +43,8 @@ MarkerControl.prototype.create = function(wrapper) {
 	buttonShowAll.setAttribute("type", "buttonShowAll");
 	buttonShowAll.setAttribute("class", "list-group-item");
 	buttonShowAll.innerHTML = "Show all";
-	buttonShowAll.addEventListener("click", function(handler) {
-		return function() {
+	buttonShowAll.addEventListener("click", function (handler) {
+		return function () {
 			for (var i = 0; i < listGroup.childNodes.length - 2; i++) {
 				var button = listGroup.childNodes[i];
 				var group = button.getAttribute("data-group");
@@ -53,13 +53,13 @@ MarkerControl.prototype.create = function(wrapper) {
 			}
 		}
 	}(this.handler));
-	
+
 	var buttonHideAll = document.createElement("button");
 	buttonHideAll.setAttribute("type", "buttonHideAll");
 	buttonHideAll.setAttribute("class", "list-group-item");
 	buttonHideAll.innerHTML = "Hide all";
-	buttonHideAll.addEventListener("click", function(handler) {
-		return function() {
+	buttonHideAll.addEventListener("click", function (handler) {
+		return function () {
 			for (var i = 0; i < listGroup.childNodes.length - 2; i++) {
 				var button = listGroup.childNodes[i];
 				var group = button.getAttribute("data-group");
@@ -68,25 +68,26 @@ MarkerControl.prototype.create = function(wrapper) {
 			}
 		}
 	}(this.handler));
-	
+
 	listGroup.appendChild(buttonShowAll);
 	listGroup.appendChild(buttonHideAll);
 
 	wrapper.appendChild(Util.createPanelHeader("Markers"));
 	wrapper.appendChild(listGroup);
-	
+
 	if (window.innerWidth <= 600) {
-		setTimeout(function () {
-			$(".panel-heading").on("click", function () {
-				$(".list-group").toggle();
-			});
-		}, 500);
 		$(".list-group").hide();
 	}
+	setTimeout(function () {
+		$(".panel-heading").on("click", function () {
+			$(".list-group").toggle();
+		});
+	}, 500);
+
 };
 
 // hmm this is a not-so-nice hack
-MarkerControl.prototype.uncheckGroup = function(group) {
+MarkerControl.prototype.uncheckGroup = function (group) {
 	for (var i = 0; i < this.buttons.length; i++) {
 		var button = this.buttons[i];
 		if (button.getAttribute("data-group") == group) {
@@ -95,15 +96,15 @@ MarkerControl.prototype.uncheckGroup = function(group) {
 	}
 }
 
-MarkerControl.prototype.getHandler = function() {
+MarkerControl.prototype.getHandler = function () {
 	return this.handler;
 };
 
-MarkerControl.prototype.getName = function() {
+MarkerControl.prototype.getName = function () {
 	return 'marker';
 };
 
-MarkerControl.prototype.usePanelWrapper = function() {
+MarkerControl.prototype.usePanelWrapper = function () {
 	return true;
 }
 
