@@ -37,12 +37,24 @@ bool TileImage::operator<(const TileImage& other) const {
 	return pos < other.pos;
 }
 
-TileRenderer::TileRenderer(const RenderView* render_view, mc::BlockStateRegistry& block_registry,
-		BlockImages* images, int tile_width, mc::WorldCache* world, RenderMode* render_mode)
-	: block_registry(block_registry), images(images), block_images(dynamic_cast<RenderedBlockImages*>(images)),
-	  tile_width(tile_width), world(world), current_chunk(nullptr),
-	  render_mode(render_mode),
-	  render_biomes(true), use_preblit_water(false), shadow_edges({0, 0, 0, 0, 0}) {
+TileRenderer::TileRenderer(
+		const RenderView* render_view,
+		mc::BlockStateRegistry& block_registry,
+		BlockImages* images,
+		int tile_width,
+		mc::WorldCache* world,
+		RenderMode* render_mode):
+				block_registry(block_registry),
+				images(images),
+				block_images(dynamic_cast<RenderedBlockImages*>(images)),
+				tile_width(tile_width),
+				world(world),
+				current_chunk(nullptr),
+				render_mode(render_mode),
+				render_biomes(true),
+				use_preblit_water(false),
+				shadow_edges({0, 0, 0, 0, 0})
+{
 	assert(block_images);
 	render_mode->initialize(render_view, images, world, &current_chunk);
 
@@ -91,7 +103,7 @@ TileRenderer::TileRenderer(const RenderView* render_view, mc::BlockStateRegistry
 	*/
 
 	waterlog_id = block_registry.getBlockID(mc::BlockState("minecraft:waterlog"));
-	waterlog_block_image = &block_images->getBlockImage(waterlog_id);
+	waterlog_block_image = &block_images->getBlockImage(waterlog_id, mc::BlockPos(0,0,0));
 }
 
 TileRenderer::~TileRenderer() {
@@ -148,24 +160,25 @@ void TileRenderer::renderBlocks(int x, int y, mc::BlockPos top, const mc::BlockP
 		mc::LocalBlockPos local(top);
 
 		uint16_t id = current_chunk->getBlockID(local);
-		const BlockImage* block_image = &block_images->getBlockImage(id);
+		mc::BlockPos blockPosition = mc::BlockPos(current_chunk->getPos());
+		const BlockImage* block_image = &block_images->getBlockImage(id, blockPosition);
 		if (block_image->is_air || render_mode->isHidden(top, *block_image)) {
 			continue;
 		}
 
-		auto is_full_water = [this](uint16_t id) -> bool {
-			return full_water_ids.count(id)
-				|| full_water_like_ids.count(id)
-				|| block_images->getBlockImage(id).is_waterlogged;
+		auto is_full_water = [this](mc::Block block) -> bool {
+			return full_water_ids.count(block.id)
+				|| full_water_like_ids.count(block.id)
+				|| block_images->getBlockImage(block.id, block.pos).is_waterlogged;
 		};
 		// auto is_ice = [this](uint16_t id) -> bool {
 		// 	return block_images->getBlockImage(id).is_ice;
 		// };
 
 		if (full_water_ids.count(id)) {
-			uint16_t up = getBlock(top + mc::DIR_TOP).id;
-			uint16_t south = getBlock(top + mc::DIR_SOUTH).id;
-			uint16_t west = getBlock(top + mc::DIR_WEST).id;
+			mc::Block up = getBlock(top + mc::DIR_TOP);
+			mc::Block south = getBlock(top + mc::DIR_SOUTH);
+			mc::Block west = getBlock(top + mc::DIR_WEST);
 
 			uint8_t index = is_full_water(up)
 								| (is_full_water(south) << 1)
@@ -177,7 +190,7 @@ void TileRenderer::renderBlocks(int x, int y, mc::BlockPos top, const mc::BlockP
 			}
 			assert(index < 8);
 			id = partial_full_water_ids[index];
-			block_image = &block_images->getBlockImage(id);
+			block_image = &block_images->getBlockImage(id, blockPosition);
 		}
 
 		if (block_image->is_lily_pad) {
@@ -187,16 +200,16 @@ void TileRenderer::renderBlocks(int x, int y, mc::BlockPos top, const mc::BlockP
 			pr = pr * pr * 42317861LL + pr * 11LL;
 			uint16_t rotation = 3 & (pr >> 16);
 			id = lily_pad_ids[rotation];
-			block_image = &block_images->getBlockImage(id);
+			block_image = &block_images->getBlockImage(id, blockPosition);
 		}
 
 		// when we have a block that is waterlogged:
 		// remove upper water texture if it's not the block at the water surface
 		if (block_image->is_waterloggable && block_image->is_waterlogged) {
-			uint16_t up = getBlock(top + mc::DIR_TOP).id;
+			mc::Block up = getBlock(top + mc::DIR_TOP);
 			if (is_full_water(up)) {
 				id = block_image->non_waterlogged_id;
-				block_image = &block_images->getBlockImage(id);
+				block_image = &block_images->getBlockImage(id, blockPosition);
 			}
 		}
 
@@ -214,14 +227,19 @@ void TileRenderer::renderBlocks(int x, int y, mc::BlockPos top, const mc::BlockP
 			bool strip_up = false;
 			bool strip_left = false;
 			bool strip_right = false;
+
+			mc::Block topBlock = getBlock(top + mc::DIR_TOP);
+			mc::Block westBlock = getBlock(top + mc::DIR_WEST);
+			mc::Block southBlock = getBlock(top + mc::DIR_SOUTH);
+
 			if(block_image.can_partial) {
-				strip_up = id == getBlock(top + mc::DIR_TOP).id;
-				strip_left = id == getBlock(top + mc::DIR_WEST).id;
-				strip_right = id == getBlock(top + mc::DIR_SOUTH).id;
+				strip_up = id == topBlock.id;
+				strip_left = id == westBlock.id;
+				strip_right = id == southBlock.id;
 			} else if(!block_image.is_transparent) {
-				strip_up = block_images->getBlockImage((getBlock(top + mc::DIR_TOP).id)).is_transparent == false;
-				strip_left = block_images->getBlockImage((getBlock(top + mc::DIR_WEST).id)).is_transparent == false;
-				strip_right = block_images->getBlockImage((getBlock(top + mc::DIR_SOUTH).id)).is_transparent == false;
+				strip_up = block_images->getBlockImage(topBlock.id, topBlock.pos).is_transparent == false;
+				strip_left = block_images->getBlockImage(westBlock.id, westBlock.pos).is_transparent == false;
+				strip_right = block_images->getBlockImage(southBlock.id, southBlock.pos).is_transparent == false;
 			}
 
 			tile_image.image.setSize(block_image.image.width,block_image.image.height);
@@ -271,7 +289,8 @@ void TileRenderer::renderBlocks(int x, int y, mc::BlockPos top, const mc::BlockP
 
 			if (block_image.shadow_edges > 0) {
 				auto shadow_edge = [this, top](const mc::BlockPos& dir) {
-					const BlockImage& b = block_images->getBlockImage(getBlock(top + dir).id);
+					auto block = getBlock(top + dir);
+					const BlockImage& b = block_images->getBlockImage(block.id, block.pos);
 					//return b.is_transparent && !(b.is_full_water || b.is_waterlogged);
 					return b.shadow_edges == 0;
 				};

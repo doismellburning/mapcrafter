@@ -86,6 +86,7 @@ public:
 
 	BlockPos();
 	BlockPos(int x, int z, int y);
+	BlockPos(ChunkPos chunk);
 
 	int getRow() const;
 	int getCol() const;

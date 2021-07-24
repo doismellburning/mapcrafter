@@ -21,3 +21,6 @@ docs/_build/
 /_wd_
 /.vscode
 /build
+
+version.h
+config.h

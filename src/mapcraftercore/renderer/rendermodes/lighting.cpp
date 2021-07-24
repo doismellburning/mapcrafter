@@ -105,7 +105,13 @@ uint8_t LightingData::getLightLevel(bool day) const {
 LightingData LightingData::estimate(const mc::Block& block,
 		RenderedBlockImages* block_images, mc::WorldCache* world, mc::Chunk* current_chunk) {
 	// estimate the light if this is a special block
-	if (!block_images->getBlockImage(block.id).has_faulty_lighting) {
+	/*
+	if (!isSpecialTransparent(block.id))
+		return LightingData(block.block_light, block.sky_light);
+	*/
+
+	mc::BlockPos blockPos = mc::BlockPos(current_chunk->getPos());
+	if (!block_images->getBlockImage(block.id, blockPos).has_faulty_lighting) {
 		return LightingData(block.block_light, block.sky_light);
 	}
 
@@ -117,7 +123,11 @@ LightingData LightingData::estimate(const mc::Block& block,
 	while (++off.y) {
 		above = world->getBlock(block.pos + off, current_chunk,
 				mc::GET_ID | mc::GET_SKY_LIGHT);
-		const BlockImage& above_block = block_images->getBlockImage(above.id);
+		const BlockImage& above_block = block_images->getBlockImage(above.id, above.pos);
+		/*
+		if (isSpecialTransparent(above.id))
+			continue;
+		*/
 		if (above_block.has_faulty_lighting) {
 			continue;
 		}
@@ -137,7 +147,15 @@ LightingData LightingData::estimate(const mc::Block& block,
 			for (int dy = -1; dy <= 1; dy++) {
 				mc::Block other = world->getBlock(block.pos + mc::BlockPos(dx, dz, dy),
 						current_chunk, mc::GET_ID | mc::GET_BLOCK_LIGHT);
-				const BlockImage& other_block = block_images->getBlockImage(other.id);
+				const BlockImage& other_block = block_images->getBlockImage(other.id, other.pos);
+				/*
+				if ((other.id == 0
+						|| images->isBlockTransparent(other.id, other.data))
+						&& !isSpecialTransparent(other.id)) {
+					block_lights += other.block_light;
+					block_lights_count++;
+				}
+				*/
 				if ((other_block.is_air || other_block.is_transparent)
 						&& !other_block.has_faulty_lighting) {
 					block_lights += other.block_light;
@@ -228,7 +246,7 @@ LightingData LightingRenderMode::getBlockLight(const mc::BlockPos& pos) {
 		if (block.id != 0 && !images->isBlockTransparent(block.id, block.data))
 			sky = 0;
 		*/
-		const BlockImage& block_image = block_images->getBlockImage(block.id);
+		const BlockImage& block_image = block_images->getBlockImage(block.id, pos);
 		if (!block_image.is_air && !block_image.is_transparent) {
 			sky = 0;
 		}
@@ -279,7 +297,8 @@ void LightingRenderMode::doSmoothLight(RGBAImage& image, const BlockImage& block
 	mc::BlockPos dirs[3] = {mc::DIR_WEST, mc::DIR_SOUTH, mc::DIR_TOP};
 	for (int i = 0; i < 3; i++) {
 		if (side_mask[i]) {
-			const BlockImage& block = block_images->getBlockImage(getBlock(pos + dirs[i]).id);
+			mc::BlockPos other = pos + dirs[i];
+			const BlockImage& block = block_images->getBlockImage(getBlock(other).id, other);
 			under_water[i] = block.is_full_water || block.is_waterlogged;
 			side_mask[i] = block.is_air || block.is_transparent;
 		}
