@@ -33,13 +33,8 @@ namespace mc {
 class BlockStateRegistry;
 
 // chunk height in sections
-/* Save for 1.18 */
-/*
 const int CHUNK_LOW = -64/16;
 const int CHUNK_TOP = 320/16;
-*/
-const int CHUNK_LOW = 0;
-const int CHUNK_TOP = 256/16;
 const int BIOMES_ARRAY_SIZE = (16/4) * (16/4) * ((CHUNK_TOP-CHUNK_LOW)*16)/4;
 
 /**
