@@ -195,6 +195,8 @@ bool Chunk::readNBT(mc::BlockStateRegistry& block_registry, const char* data, si
 		}
 	}
 
+	//FIXME Don't look for old Biomes tag - hardcode value for now
+	/*
 	if (level.hasArray<nbt::TagByteArray>("Biomes", BIOMES_ARRAY_SIZE)) {
 		const nbt::TagByteArray& biomes_tag = level.findTag<nbt::TagByteArray>("Biomes");
 		std::copy(biomes_tag.payload.begin(), biomes_tag.payload.end(), biomes);
@@ -210,6 +212,8 @@ bool Chunk::readNBT(mc::BlockStateRegistry& block_registry, const char* data, si
 		LOG(WARNING) << "Corrupt chunk " << chunkpos << ": No biome data found!";
 		//level.dump(std::cout);
 	}
+	*/
+	std::fill(biomes, biomes + BIOMES_ARRAY_SIZE, 21); // 21 is "Default biome" according to Chunk::clear
 
 	// find sections list
 	// ignore it if section list does not exist, can happen sometimes with the empty
