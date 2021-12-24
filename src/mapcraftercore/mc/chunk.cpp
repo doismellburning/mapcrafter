@@ -186,8 +186,8 @@ bool Chunk::readNBT(mc::BlockStateRegistry& block_registry, const char* data, si
 	// check whether this chunk is completely contained within the cropped world
 	chunk_completely_contained = world_crop.isChunkCompletelyContained(chunkpos_original);
 
-	if (level.hasTag<nbt::TagString>("Status")) {
-		const nbt::TagString& tag = level.findTag<nbt::TagString>("Status");
+	if (nbt.hasTag<nbt::TagString>("Status")) {
+		const nbt::TagString& tag = nbt.findTag<nbt::TagString>("Status");
 		// completely generated chunks in fresh 1.13 worlds usually have status 'fullchunk' or 'postprocessed'
 		// however, chunks of converted <1.13 worlds don't use these, but the state 'mobs_spawned'
 		if (!(tag.payload == "fullchunk" || tag.payload == "full" || tag.payload == "postprocessed" || tag.payload == "mobs_spawned")) {
