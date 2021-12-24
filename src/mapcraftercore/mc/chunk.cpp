@@ -172,12 +172,12 @@ bool Chunk::readNBT(mc::BlockStateRegistry& block_registry, const char* data, si
 	int data_version = nbt.findTag<nbt::TagInt>("DataVersion").payload;
 
 	// then find x/z pos of the chunk
-	if (!level.hasTag<nbt::TagInt>("xPos") || !level.hasTag<nbt::TagInt>("zPos")) {
+	if (!nbt.hasTag<nbt::TagInt>("xPos") || !nbt.hasTag<nbt::TagInt>("zPos")) {
 		LOG(ERROR) << "Corrupt chunk: No x/z position found!";
 		return false;
 	}
-	chunkpos_original = ChunkPos(level.findTag<nbt::TagInt>("xPos").payload,
-	                             level.findTag<nbt::TagInt>("zPos").payload);
+	chunkpos_original = ChunkPos(nbt.findTag<nbt::TagInt>("xPos").payload,
+	                             nbt.findTag<nbt::TagInt>("zPos").payload);
 	chunkpos = chunkpos_original;
 	if (rotation)
 		chunkpos.rotate(rotation);
