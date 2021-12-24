@@ -233,8 +233,7 @@ bool Chunk::readNBT(mc::BlockStateRegistry& block_registry, const char* data, si
 		if (!section_tag.hasTag<nbt::TagByte>("Y")
 		//		|| !section_tag.hasArray<nbt::TagByteArray>("Blocks", 4096)
 		//		|| !section_tag.hasArray<nbt::TagByteArray>("Data", 2048)
-				|| !section_tag.hasArray<nbt::TagLongArray>("BlockStates")
-				|| !section_tag.hasTag<nbt::TagList>("Palette"))
+				|| !section_tag.hasTag<nbt::TagCompound>("block_states"))
 			continue;
 		
 		const nbt::TagByte& y = section_tag.findTag<nbt::TagByte>("Y");
