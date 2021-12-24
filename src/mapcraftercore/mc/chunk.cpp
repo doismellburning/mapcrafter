@@ -242,9 +242,14 @@ bool Chunk::readNBT(mc::BlockStateRegistry& block_registry, const char* data, si
 		//const nbt::TagByteArray& blocks = section_tag.findTag<nbt::TagByteArray>("Blocks");
 		//const nbt::TagByteArray& data = section_tag.findTag<nbt::TagByteArray>("Data");
 	
-		const nbt::TagLongArray& blockstates = section_tag.findTag<nbt::TagLongArray>("BlockStates");
+		const nbt::TagCompound& blockstates_container = section_tag.findTag<nbt::TagCompound>("block_states");
+
+		if (!blockstates_container.hasTag<nbt::TagLongArray>("data"))
+			continue;
+
+		const nbt::TagLongArray& blockstates = blockstates_container.findTag<nbt::TagLongArray>("data");
 		
-		const nbt::TagList& palette = section_tag.findTag<nbt::TagList>("Palette");
+		const nbt::TagList& palette = blockstates_container.findTag<nbt::TagList>("palette");
 		std::vector<mc::BlockState> palette_blockstates(palette.payload.size());
 		std::vector<uint16_t> palette_lookup(palette.payload.size());
 
