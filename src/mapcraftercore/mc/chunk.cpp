@@ -171,13 +171,6 @@ bool Chunk::readNBT(mc::BlockStateRegistry& block_registry, const char* data, si
 	}
 	int data_version = nbt.findTag<nbt::TagInt>("DataVersion").payload;
 
-	// find "level" tag
-	if (!nbt.hasTag<nbt::TagCompound>("Level")) {
-		LOG(ERROR) << "Corrupt chunk: No level tag found!";
-		return false;
-	}
-	const nbt::TagCompound& level = nbt.findTag<nbt::TagCompound>("Level");
-
 	// then find x/z pos of the chunk
 	if (!level.hasTag<nbt::TagInt>("xPos") || !level.hasTag<nbt::TagInt>("zPos")) {
 		LOG(ERROR) << "Corrupt chunk: No x/z position found!";
