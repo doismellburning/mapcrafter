@@ -218,10 +218,10 @@ bool Chunk::readNBT(mc::BlockStateRegistry& block_registry, const char* data, si
 	// find sections list
 	// ignore it if section list does not exist, can happen sometimes with the empty
 	// chunks of the end
-	if (!level.hasList<nbt::TagCompound>("Sections"))
+	if (!nbt.hasList<nbt::TagCompound>("sections"))
 		return true;
 	
-	const nbt::TagList& sections_tag = level.findTag<nbt::TagList>("Sections");
+	const nbt::TagList& sections_tag = nbt.findTag<nbt::TagList>("sections");
 	if (sections_tag.tag_type != nbt::TagCompound::TAG_TYPE)
 		return true;
 
