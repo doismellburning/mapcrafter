@@ -1,0 +1,16 @@
+#!/bin/bash
+
+cat << EOF > build/render.conf
+output_dir = output
+
+[world:overworld]
+input_dir = world
+dimension = overworld
+
+[map:overworld]
+world = overworld
+name = Overworld
+render_view = isometric
+EOF
+
+ln -s ../../src/data ./build/data
